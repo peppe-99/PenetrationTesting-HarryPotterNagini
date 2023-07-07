@@ -63,10 +63,108 @@ We can see that the target machine can be reached.
 Once we have discovered the IP address of the target machine, we can proceed with an **active OS Fingerprinting** procedure to obtain information regarding the target machine's operating system. The ***nmap*** tool can be used. Therefore, we run the command:
 
     nmap -O 10.0.2.4
-- `-O`: enables OS detection.
+- `-O` : enables OS detection.
 
 <p align="center">
     <img src="./images/target_discovery/active_os_fingerprinting.png" width="80%">
 </p>
 
 We discover that a Linux-based operating system, whose version is between 4.15 and 5.6, is installed on the Nagini target machine.
+
+# Enumerating Target & Port Scanning
+Once we have discovered the IP address of the target machine and verified its reachability, we can proceed to individuate open ports (TCP and UDP) and services offered (with related version) by the target machine Nagini.
+
+## TCP Port Scanning
+The ***netdiscover*** tool can be used for this purpose. More precisely, we execute the command:
+
+    nmap -sV -T5 -p- 10.0.2.4 -oX nmap_tcp_scan.xml
+- `-sV` : allows to obtain as much information as possibile about the services provided by the ports;
+- `-T5` : allows for maximum scanning speed;
+- `-p-` : allows to scan all the 65535 ports;
+- `-oX` : the output is a XML file.
+
+Since the output of the previous command is a XML file, we prooced to convert it to HTML format:
+
+    xsltproc nmap_tcp_scan.xml -o nmap_tcp_scan.html
+
+The following is a table of open ports, identified by nmap, with the services offered and their version. Ports not shown in the table are closed.
+
+<p align="center">
+    <img src="./images/target_discovery/tcp_scan.png" width="80%">
+</p>
+
+## UDP Port Scanning
+Next, we scan the UDP ports. The ***unicornscan*** tool can be used for this purpose because is faster then ***nmap***. The ***unicornscan*** tool isn't installed in Kali, therefore you need to install it with the following command:
+
+    sudo apt install unicornscan
+
+Once ***unicornscan*** is installed, we can proceed to scan the UDP ports with the command:
+
+    unicornscan -mU -Iv 10.0.2.4:1-65535 -r 5000
+- `-mU` : indicates that the scanning mode is "UDP scanning";
+- `-Iv` : enables printing of results;
+- `-r` : indicates the rate of packets sent per second.
+
+<p align="center">
+    <img src="./images/target_discovery/udp_scan.png" width="80%">
+</p>
+
+From the output of the previous command, you can see that there are no open UDP ports or that they are filtered.
+
+# Vulnerability Mapping
+Once we have discovered the operating system and the services that the target machine Nagini provides, we need to understand whether or not the exposed services or the operating system have vulnerabilities that can be exploited.
+
+## Automated Vulnerability Analysis
+First, we proceed with an automated vulnerability analysis. For this purpose, the two main tools used are **Nessus** and **OpenVas**. For this project, both were used so as to combine their results.
+
+### Nessus
+**Nessus** is a widely used vulnerability scanning tool in cybersecurity that allows scans to be performed on individual target machines or entire portions of a network. As part of this project, a "**Basic Network Scan**" was created and performed on the target machine Nagini. The results of that scan are shown below:
+
+<p align="center">
+    <img src="./images/target_discovery/nessus.png" width="80%">
+</p>
+
+We can notice that 30 vulnerabilities are discovered: 5 critical-level, one high-level and 24 info-level. The severity level, CVSS 3.0 score, and vulnerability name are shown for each vulnerability. These results are combined with those of OpenVas.
+
+### OpenVAS
+**OpenVas** is a vulnerability mapping framework that allows scanning of one or more machines to detect detailed information. As part of this project, a "**OpenVAS Default Scan**" was created and executed on the target machine Nagini:
+
+<p align="center">
+    <img src="./images/target_discovery/openvas_default_scan.png" width="80%">
+</p>
+
+The scan results are shown below:
+
+<p align="center">
+    <img src="./images/target_discovery/openvas_results.png" width="80%">
+</p>
+
+Nine vulnerabilities were detected, including 3 high-level, 4 medium-level, and 2 low-level vulnerabilities. For each vulnerability the name, mitigation type and severity level according to CVSS 2.0 is given. In reality the vulnerabilities found are greater, in fact for many of them it is written "Multiple Vulnerabilities."
+
+Importantly, several vulnerabilities were found concerning **Joomla!**, which is a content management system for building and managing web pages. It is probably installed on the target machine Nagini.
+
+In addition, we can see that different vulnerabilities were detected than those detected by Nessus. So it was important to use both tools so as to combine the results.
+
+### Summary
+The following graphics, which can be found in the "Finding Summary" section of the Penetration Testing Report, summarize the results obtained:
+
+<p align="center">
+    <img src="./images/target_discovery/finding_summary1.png" width="80%">
+</p>
+
+<p align="center">
+    <img src="./images/target_discovery/finding_summary2.png" width="80%">
+</p>
+
+
+## Web Vulnerability Analysis
+
+### Information Leakage - gobuster
+
+### Information Leakage - JoomScan
+
+
+# Target Exploitation
+
+
+# Post-Exploitation
