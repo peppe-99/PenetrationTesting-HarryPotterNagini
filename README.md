@@ -18,7 +18,6 @@ This paper discusses all the steps related to the penetration testing activity p
  - **Target Discovery**;
  - **Enumerating Target & Port Scanning**;
  - **Vulnerability Mapping**;
- - **Target Exploitation**;
  - **Post Exploitation**.
 
 These steps are part of the **Framework Generale per il Penetration Testing** (**FGPT**). In our context, we can skip the "Target Scoping" phase because it's required a client that commission the penetration testing activity. In addition, it is also possible to skip the "information gathering" phase because the asset is a virtual machine, which means that the only information we can gather is that provided by the developer, but this has not released anything.
@@ -90,7 +89,7 @@ Since the output of the previous command is a XML file, we prooced to convert it
 The following is a table of open ports, identified by nmap, with the services offered and their version. Ports not shown in the table are closed.
 
 <p align="center">
-    <img src="./images/target_discovery/tcp_scan.png" width="80%">
+    <img src="./images/enumerating_target/tcp_scan.png" width="80%">
 </p>
 
 ## UDP Port Scanning
@@ -106,7 +105,7 @@ Once ***unicornscan*** is installed, we can proceed to scan the UDP ports with t
 - `-r` : indicates the rate of packets sent per second.
 
 <p align="center">
-    <img src="./images/target_discovery/udp_scan.png" width="80%">
+    <img src="./images/enumerating_target/udp_scan.png" width="80%">
 </p>
 
 From the output of the previous command, you can see that there are no open UDP ports or that they are filtered.
@@ -121,7 +120,7 @@ First, we proceed with an automated vulnerability analysis. For this purpose, th
 **Nessus** is a widely used vulnerability scanning tool in cybersecurity that allows scans to be performed on individual target machines or entire portions of a network. As part of this project, a "**Basic Network Scan**" was created and performed on the target machine Nagini. The results of that scan are shown below:
 
 <p align="center">
-    <img src="./images/target_discovery/nessus.png" width="80%">
+    <img src="./images/vulnerability_mapping/nessus.png" width="80%">
 </p>
 
 We can notice that 30 vulnerabilities are discovered: 5 critical-level, one high-level and 24 info-level. The severity level, CVSS 3.0 score, and vulnerability name are shown for each vulnerability. These results are combined with those of OpenVas.
@@ -130,13 +129,13 @@ We can notice that 30 vulnerabilities are discovered: 5 critical-level, one high
 **OpenVas** is a vulnerability mapping framework that allows scanning of one or more machines to detect detailed information. As part of this project, a "**OpenVAS Default Scan**" was created and executed on the target machine Nagini:
 
 <p align="center">
-    <img src="./images/target_discovery/openvas_default_scan.png" width="80%">
+    <img src="./images/vulnerability_mapping/openvas_default_scan.png" width="80%">
 </p>
 
 The scan results are shown below:
 
 <p align="center">
-    <img src="./images/target_discovery/openvas_results.png" width="80%">
+    <img src="./images/vulnerability_mapping/openvas_results.png" width="75%">
 </p>
 
 Nine vulnerabilities were detected, including 3 high-level, 4 medium-level, and 2 low-level vulnerabilities. For each vulnerability the name, mitigation type and severity level according to CVSS 2.0 is given. In reality the vulnerabilities found are greater, in fact for many of them it is written "Multiple Vulnerabilities."
@@ -149,11 +148,11 @@ In addition, we can see that different vulnerabilities were detected than those 
 The following graphics, which can be found in the "Finding Summary" section of the Penetration Testing Report, summarize the results obtained:
 
 <p align="center">
-    <img src="./images/target_discovery/finding_summary1.png" width="80%">
+    <img src="./images/vulnerability_mapping/finding_summary1.png" width="80%">
 </p>
 
 <p align="center">
-    <img src="./images/target_discovery/finding_summary2.png" width="80%">
+    <img src="./images/vulnerability_mapping/finding_summary2.png" width="80%">
 </p>
 
 
