@@ -346,4 +346,12 @@ In addition, an administrator login page was found, with ***JoomScan*** tool, at
 
 # 8. Conclusions
 
-# 9. References 
+# 9. References
+
+1. **HarryPotter:Nagini** <https://www.vulnhub.com/entry/harrypotter-nagini,689/>
+2. **Gobuster** <https://www.kali.org/tools/gobuster/>
+3. **Quiche** <https://github.com/cloudflare/quiche#building>
+4. **Joomla** <https://www.joomla.org/>
+5. **Gopherus Repository** <https://github.com/tarunkant/Gopherus>
+6. **Gopherus Blog** <https://spyclub.tech/2018/08/14/2018-08-14-blog-on-gopherus/>
+7. **Firefox Decrypt** <https://github.com/unode/firefox_decrypt>
