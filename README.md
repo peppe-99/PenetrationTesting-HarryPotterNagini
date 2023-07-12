@@ -8,7 +8,45 @@ At the end of the pentration testing process, the following documents were produ
 - Penetration Testing Narrative;
 - Digital Presentation.
 
-You can consult these documents in the ```docs``` folder.
+You can consult these documents (in italian) in the ```docs``` folder.
+
+# Table of Contents
+
+- [PenetrationTesting-HarryPotter:Nagini](#penetrationtesting-harrypotternagini)
+- [Table of Contents](#table-of-contents)
+- [1. Introduction](#1-introduction)
+- [2. Tools and Instruments](#2-tools-and-instruments)
+  - [Kali Linux - Attacking Machine](#kali-linux---attacking-machine)
+  - [HarryPotter:Nagini - Target Machine](#harrypotternagini---target-machine)
+  - [Virtual Box - Virtual Environment](#virtual-box---virtual-environment)
+- [3. Target Discovery](#3-target-discovery)
+  - [Finding the IP address](#finding-the-ip-address)
+  - [Reachability of the target machine](#reachability-of-the-target-machine)
+  - [OS Fingerprinting](#os-fingerprinting)
+- [4. Enumerating Target \& Port Scanning](#4-enumerating-target--port-scanning)
+  - [TCP Port Scanning](#tcp-port-scanning)
+  - [UDP Port Scanning](#udp-port-scanning)
+- [5. Vulnerability Mapping](#5-vulnerability-mapping)
+  - [Automated Vulnerability Analysis](#automated-vulnerability-analysis)
+    - [Nessus](#nessus)
+    - [OpenVAS](#openvas)
+    - [Summary](#summary)
+  - [Web Vulnerability Analysis](#web-vulnerability-analysis)
+    - [Information Leakage - gobuster](#information-leakage---gobuster)
+    - [Information Leakage - JoomScan](#information-leakage---joomscan)
+- [6. Target Exploitation](#6-target-exploitation)
+  - [Database Exploitation](#database-exploitation)
+    - [Remote Code Execution - Gopherus](#remote-code-execution---gopherus)
+  - [Client Side Exploitation](#client-side-exploitation)
+- [7. Post-Exploitation](#7-post-exploitation)
+  - [Local Exploit](#local-exploit)
+  - [Privilege Escalation](#privilege-escalation)
+    - [Privilege Escalation - snape user](#privilege-escalation---snape-user)
+    - [Privilege Escalation - hermoine user](#privilege-escalation---hermoine-user)
+    - [Privilege Escalation - root user](#privilege-escalation---root-user)
+  - [Mantaining Access](#mantaining-access)
+- [8. Conclusions](#8-conclusions)
+- [9. References](#9-references)
 
 # 1. Introduction
 
@@ -23,7 +61,7 @@ This paper discusses all the steps related to the penetration testing activity p
 - **Vulnerability Mapping**;
 - **Post Exploitation**.
 
-These steps are part of the **Framework Generale per il Penetration Testing** (**FGPT**). In our context, we can skip the "Target Scoping" phase because it's required a client that commission the penetration testing activity. In addition, it is also possible to skip the "information gathering" phase because the asset is a virtual machine, which means that the only information we can gather is that provided by the developer, but this has not released anything.
+These steps are part of the **Framework Generale per il Penetration Testing** (**FGPT**). In our context, we can skip the "**Target Scoping**" phase because it's required a client that commission the penetration testing activity. In addition, it is also possible to skip the "**Information Gathering**" phase because the asset is a virtual machine, which means that the only information we can gather is that provided by the developer, but this has not released anything.
 
 # 2. Tools and Instruments
 
@@ -37,7 +75,7 @@ The **Kali Linux** (64-bit) operating system, version 2023.1, is used as the att
 
  The **HarryPotter:Nagini** machine is used as the target machine. This is a virtual machine about which we are not given any information. It can be downloaded at the following link: <https://www.vulnhub.com/entry/harrypotter-nagini,689/>,.
 
-### Virtual Box - Virtual Environment
+## Virtual Box - Virtual Environment
 
 The **Oracle VM Virtual Box** software is used for the virtualization. A virtual network with NAT (called PTEH) was created to connect the two virtual machine.
 
@@ -286,4 +324,26 @@ In addition, an administrator login page was found, with ***JoomScan*** tool, at
 
 # 6. Target Exploitation
 
+## Database Exploitation
+
+### Remote Code Execution - Gopherus
+
+## Client Side Exploitation
+
 # 7. Post-Exploitation
+
+## Local Exploit
+
+## Privilege Escalation
+
+### Privilege Escalation - snape user
+
+### Privilege Escalation - hermoine user
+
+### Privilege Escalation - root user
+
+## Mantaining Access
+
+# 8. Conclusions
+
+# 9. References 
