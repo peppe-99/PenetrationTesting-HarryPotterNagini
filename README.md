@@ -197,36 +197,46 @@ Once ***gobuster*** is installed, we can proceed with the following command:
 - `-x` : the file extensions of interest;
 - `-w` : wordlist to use.
 
-< Inserire output comando gobuster >
-
+<p align="center">
+    <img src="./images/vulnerability_mapping/gobuster.png" width="720">
+</p>
 From the output of the previous command we can see that we have access to the index.html page, the notes.txt file, and the presence of the /joomla directory.
 
 The index.html page contains no useful information. In fact, its content is the following:
 
-< Inserire index.html >
+<p align="center">
+    <img src="./images/vulnerability_mapping/index.png" width="720">
+</p>
 
 Instead, the content of the notes.txt file is the following:
 
-< Inserire notes.txt >
-
-It appears that the web server uses the HTTP3 protocol, which is currently not supported by Firefox. The following guide <https://github.com/cloudflare/quiche> was followed to install ***quiche***, which is an implementation of the QUIC and HTTP3 transport protocol. In this way, the web server can be contacted using the HTTP3 protocol. In fact, once quiche is installed, the web server is contacted using the HTTP3 protocol with the command:
+<p align="center">
+    <img src="./images/vulnerability_mapping/note.png" width="720">
+</p>
+It appears that the web server uses the HTTP3 protocol, which is currently not supported by Firefox. The following guide <https://github.com/cloudflare/quiche> was followed to install ***quiche***, which is an implementation of the QUIC and HTTP3 transport protocol. In this way, the web server can be contacted using the HTTP3 protocol. In fact, once quiche is installed, the web server is clomifox856@mahmul.comontacted using the HTTP3 protocol with the command:
 
     /quiche/target/debug/examples/http3-client https:10.0.2.4
 
 This is the result:
 
-< Inserire risultato quiche >
+<p align="center">
+    <img src="./images/vulnerability_mapping/quiche.png" width="720">
+</p>
 
 The following information is obtained:
 
 1. A **configuration backup file** (**.bak**) exists in the web server and is readable by anyone.
 2. The presence of an **/internalResourceFeTcher.php** page. It wasn't discovered by ***gobuster*** and its content is the following:
 
-< Inserire contenuto /internalResourceFeTcher.php >
+<p align="center">
+    <img src="./images/vulnerability_mapping/internalResourceFeTcher.png" width="720">
+</p>
 
 This is a page for retrieving resources specified within the form. Through this page it is possible to cause the web server to make requests HTTP. In fact, if we try to enter within the form "10.0.2.4" the main page is shown:
 
-< Inserire contenuto /internalResourceFeTcher.php per 10.0.2.4>
+<p align="center">
+    <img src="./images/vulnerability_mapping/SSRF.png" width="720">
+</p>
 
 In this case, a **Server-Side Request Forgery** (**SSRF**) vulnerability is present.
 
@@ -234,7 +244,9 @@ In this case, a **Server-Side Request Forgery** (**SSRF**) vulnerability is pres
 
 Returning to the output of the gobuster command, there is a **/joomla** directory. This confirms that **Joomla** is installed on the Nagini machine. In fact, it is possibile to visualize the following page at <http://10.0.2.4/joomla/>:
 
-< Inserire homepage joomla >
+<p align="center">
+    <img src="./images/vulnerability_mapping/joomla_home.png" width="720">
+</p>
 
 The ***JoomScan*** tool can be used to discover vulnerability and missconfiguration related to the installed Joomla CMS version. This tool isn't installed on Kali, but can be installed with the following command:
 
@@ -246,7 +258,9 @@ Once ***JoomScan*** is installed, we can proceed with the following command:
 
 A partial output with useful information is shown below:
 
-< Inserire output joomscan >
+<p align="center">
+    <img src="./images/vulnerability_mapping/joomscan.png" width="720">
+</p>
 
 A **configuration.php.bak** file was found. This is a configuration backup file that can be read by anyone. Therefore, let's download it:
 
@@ -258,13 +272,17 @@ Let's show its content:
 
 A partial output with useful information is shown below:
 
-< Inserire configuration.php.bak >
+<p align="center">
+    <img src="./images/vulnerability_mapping/configuration.png" width="720">
+</p>
 
 We find that there is a **goblin** user, which is not password protected and can access to a MySQL database called **joomla**.
 
 In addition, an administrator login page was found, with ***JoomScan*** tool, at <http://10.0.2.4/>:
 
-< Inserire pagina login admin >
+<p align="center">
+    <img src="./images/vulnerability_mapping/joomla_admin.png" width="720">
+</p>
 
 # 6. Target Exploitation
 
